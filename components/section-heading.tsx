@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { WaveText } from "@/components/wave-text"
 
 interface SectionHeadingProps {
   title: string
@@ -23,15 +24,21 @@ export function SectionHeading({ title, subtitle }: SectionHeadingProps) {
         </div>
       </motion.div>
 
-      <motion.h2
-        className="text-4xl md:text-5xl font-bold text-slate-900 font-display"
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
         viewport={{ once: true }}
       >
-        {title}
-      </motion.h2>
+        <WaveText
+          text={title}
+          as="h2"
+          className="text-4xl md:text-5xl font-bold text-slate-900 font-display"
+          maxDist={180}
+          maxFloat={8}
+          maxScale={0.06}
+        />
+      </motion.div>
 
       <motion.div
         className="w-24 h-1.5 bg-gradient-to-r from-sky-500 to-cyan-500 rounded-full mx-auto mt-6"
