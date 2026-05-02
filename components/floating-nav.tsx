@@ -11,6 +11,7 @@ import { useMobile } from "@/hooks/use-mobile"
 export function FloatingNav() {
   const [isVisible, setIsVisible] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState("")
   const isMobile = useMobile()
 
   useEffect(() => {
@@ -26,12 +27,35 @@ export function FloatingNav() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  useEffect(() => {
+    const sectionIds = ["about", "skills", "projects", "experience", "contact"]
+    const observers: IntersectionObserver[] = []
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id)
+      if (!el) return
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActiveSection(id)
+          }
+        },
+        { rootMargin: "-30% 0px -60% 0px" }
+      )
+      observer.observe(el)
+      observers.push(observer)
+    })
+
+    return () => observers.forEach((o) => o.disconnect())
+  }, [])
+
   const navItems = [
-    { name: "关于", href: "#about" },
-    { name: "技能", href: "#skills" },
-    { name: "项目", href: "#projects" },
-    { name: "经历", href: "#experience" },
-    { name: "联系", href: "#contact" },
+    { name: "关于", href: "#about", id: "about" },
+    { name: "技能", href: "#skills", id: "skills" },
+    { name: "项目", href: "#projects", id: "projects" },
+    { name: "经历", href: "#experience", id: "experience" },
+    { name: "联系", href: "#contact", id: "contact" },
   ]
 
   const handleNavClick = () => {
@@ -52,8 +76,7 @@ export function FloatingNav() {
           {isMobile ? (
             <div className="relative flex items-center justify-between">
               <Link href="/" className="font-bold text-lg font-chinese">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-cyan-500">刘</span>
-                <span className="text-slate-700">锦峰</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-cyan-500">刘锦峰</span>
               </Link>
               <Button
                 variant="ghost"
@@ -67,17 +90,30 @@ export function FloatingNav() {
           ) : (
             <div className="relative flex items-center gap-1">
               <Link href="/" className="font-bold text-lg mr-4 font-chinese">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-cyan-500">刘</span>
-                <span className="text-slate-700">锦峰</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-cyan-500">刘锦峰</span>
               </Link>
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="px-3 py-1 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                  className={`relative px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200 group ${
+                    activeSection === item.id
+                      ? "text-sky-600"
+                      : "text-slate-600 hover:text-sky-600"
+                  }`}
                   onClick={handleNavClick}
                 >
                   {item.name}
+                  {/* Hover underline */}
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-gradient-to-r from-sky-500 to-cyan-500 rounded-full transition-all duration-300 group-hover:w-4/5" />
+                  {/* Active dot */}
+                  {activeSection === item.id && (
+                    <motion.span
+                      layoutId="activeDot"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-sky-500"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
                 </Link>
               ))}
             </div>
@@ -98,7 +134,9 @@ export function FloatingNav() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="px-8 py-4 text-2xl font-medium text-slate-800 hover:text-sky-600 transition-colors"
+                className={`px-8 py-4 text-2xl font-medium transition-colors ${
+                  activeSection === item.id ? "text-sky-600" : "text-slate-800 hover:text-sky-600"
+                }`}
                 onClick={handleNavClick}
               >
                 {item.name}
